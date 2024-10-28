@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TP_2_M3_2C_2024</string>
+    <string name="activity1">activity1</string>
+    <string name="activity2">activity2</string>
 </resources>
