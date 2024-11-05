@@ -48,4 +48,20 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.799" />
 
+    <Switch
+        android:id="@+id/swt_modo"
+        android:layout_width="185dp"
+        android:layout_height="62dp"
+        android:text="escuchando full"
+        tools:layout_editor_absoluteX="133dp"
+        tools:layout_editor_absoluteY="521dp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        tools:layout_editor_absoluteX="172dp"
+        tools:layout_editor_absoluteY="618dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
