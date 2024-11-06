@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.org.eclipse.paho.client.mqttv3)
     implementation(libs.appcompat)
     implementation(libs.material)
+    implementation(libs.org.eclipse.paho.client.mqttv3)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     testImplementation(libs.junit)
