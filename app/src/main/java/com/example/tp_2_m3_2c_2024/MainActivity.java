@@ -10,6 +10,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -155,24 +160,26 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-}
+    public class ReceptorOperacion extends BroadcastReceiver {
 
+        public void onReceive(Context context, Intent intent) {
 
-public class ReceptorOperacion extends BroadcastReceiver {
+            String msgJson = intent.getStringExtra("msgJson");
+            txtJson.setText(msgJson);
 
-    public void onReceive(Context context, Intent intent) {
-
-        String msgJson = intent.getStringExtra("msgJson");
-        txtJson.setText(msgJson);
-
-        try {
-            JSONObject jsonObject = new JSONObject(msgJson);
-            String value = jsonObject.getString("value");
-            txtTemp.setText(value+"°");
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
+            try {
+                JSONObject jsonObject = new JSONObject(msgJson);
+                String value = jsonObject.getString("value");
+                txtTemp.setText(value+"°");
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
         }
+
+
     }
 
-
 }
+
+
+
