@@ -1,6 +1,12 @@
 package com.example.tp_2_m3_2c_2024;
 
 
+import static com.example.tp_2_m3_2c_2024.MqttHandler.BROKER_URL;
+import static com.example.tp_2_m3_2c_2024.MqttHandler.CLIENT_ID;
+import static com.example.tp_2_m3_2c_2024.MqttHandler.PASS;
+import static com.example.tp_2_m3_2c_2024.MqttHandler.TOPIC_MOVIMIENTO;
+import static com.example.tp_2_m3_2c_2024.MqttHandler.USER;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -27,13 +33,10 @@ import androidx.core.view.WindowInsetsCompat;
 public class FuncActivity extends AppCompatActivity {
     private MqttHandler mqttHandler;
 
-    private TextView txtJson;
-    private TextView txtModo;
-
     public IntentFilter filterReceive;
     public IntentFilter filterConncetionLost;
-    private FuncActivity.ReceptorOperacion receiver = new FuncActivity.ReceptorOperacion();
-    private FuncActivity.ConnectionLost connectionLost = new FuncActivity.ConnectionLost();
+    private final FuncActivity.ReceptorOperacion receiver = new FuncActivity.ReceptorOperacion();
+    private final FuncActivity.ConnectionLost connectionLost = new FuncActivity.ConnectionLost();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -55,7 +58,7 @@ public class FuncActivity extends AppCompatActivity {
         btnAcSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                publishMessage(MqttHandler.TOPIC_MOVIMIENTO, "AJUSTAR UMBRAL:"+String.valueOf(sBar.getProgress()));
+                publishMessage("AJUSTAR UMBRAL:" + String.valueOf(sBar.getProgress()));
                 mqttHandler.disconnect();
                 startActivity(new Intent(FuncActivity.this, MainActivity.class));
             }
@@ -72,10 +75,10 @@ public class FuncActivity extends AppCompatActivity {
         });
     }
     private void connect() {
-        mqttHandler.connect(mqttHandler.BROKER_URL, mqttHandler.CLIENT_ID, mqttHandler.USER, mqttHandler.PASS);
+        mqttHandler.connect(BROKER_URL, CLIENT_ID, USER, PASS);
         try {
             Thread.sleep(1000);
-            subscribeToTopic(MqttHandler.TOPIC_MOVIMIENTO);
+            subscribeToTopic();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -90,7 +93,6 @@ public class FuncActivity extends AppCompatActivity {
 
         registerReceiver(receiver, filterReceive);
         registerReceiver(connectionLost, filterConncetionLost);
-
     }
 
     @Override
@@ -109,40 +111,30 @@ public class FuncActivity extends AppCompatActivity {
         unregisterReceiver(receiver);
     }
 
-    private void publishMessage(String topic, String message) {
+    private void publishMessage(String message) {
         Toast.makeText(this, "Publishing message: " + message, Toast.LENGTH_SHORT).show();
-
-        mqttHandler.publish(topic, message);
+        mqttHandler.publish(TOPIC_MOVIMIENTO, message);
 
     }
 
-    private void subscribeToTopic(String topic) {
-        Toast.makeText(this, "Subscribing to topic " + topic, Toast.LENGTH_SHORT).show();
-        mqttHandler.subscribe(topic);
+    private void subscribeToTopic() {
+        Toast.makeText(this, "Subscribing to topic " + TOPIC_MOVIMIENTO, Toast.LENGTH_SHORT).show();
+        mqttHandler.subscribe(TOPIC_MOVIMIENTO);
     }
 
 
     public class ConnectionLost extends BroadcastReceiver {
-
         public void onReceive(Context context, Intent intent) {
-
             Toast.makeText(getApplicationContext(), "Conexion Perdida", Toast.LENGTH_SHORT).show();
-
             connect();
-
         }
-
     }
 
     public class ReceptorOperacion extends BroadcastReceiver {
-
         public void onReceive(Context context, Intent intent) {
             TextView txtLcd = findViewById(R.id.txtDisplay);
             String msgMov = intent.getStringExtra("msgMov");
             txtLcd.setText(msgMov);
-
         }
-
-
     }
 }

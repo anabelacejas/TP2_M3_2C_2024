@@ -1,5 +1,12 @@
 package com.example.tp_2_m3_2c_2024;
 
+import static com.example.tp_2_m3_2c_2024.MqttHandler.BROKER_URL;
+import static com.example.tp_2_m3_2c_2024.MqttHandler.CLIENT_ID;
+import static com.example.tp_2_m3_2c_2024.MqttHandler.PASS;
+import static com.example.tp_2_m3_2c_2024.MqttHandler.TOPIC_MODO;
+import static com.example.tp_2_m3_2c_2024.MqttHandler.TOPIC_MOVIMIENTO;
+import static com.example.tp_2_m3_2c_2024.MqttHandler.USER;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -30,15 +36,11 @@ import androidx.core.view.WindowInsetsCompat;
 public class MainActivity extends AppCompatActivity {
 
     private MqttHandler mqttHandler;
-
-    private TextView txtJson;
-    private TextView txtModo;
-    private Button cmdModo;
     public IntentFilter filterReceive;
     public IntentFilter filterConncetionLost;
-    private ReceptorOperacion receiver = new ReceptorOperacion();
-    private ConnectionLost connectionLost = new ConnectionLost();
-
+    private final ReceptorOperacion receiver = new ReceptorOperacion();
+    private final ConnectionLost connectionLost = new ConnectionLost();
+    public static final String CAMBIO_MODO = "CAMBIO_MODO";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         btnMode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                publishMessage(MqttHandler.TOPIC_MODO, "CAMBIAR MODO");
+                publishMessage();
             }
         });
 
@@ -78,18 +80,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connect() {
-        mqttHandler.connect(mqttHandler.BROKER_URL, mqttHandler.CLIENT_ID, mqttHandler.USER, mqttHandler.PASS);
-
-
+        mqttHandler.connect(BROKER_URL, CLIENT_ID, USER, PASS);
         try {
-
             Thread.sleep(1000);
-            subscribeToTopic(MqttHandler.TOPIC_MOVIMIENTO);
+            subscribeToTopic();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     private void configurarBroadcastReciever() {
@@ -120,33 +117,25 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(receiver);
     }
 
-    private void publishMessage(String topic, String message) {
-        Toast.makeText(this, "Publishing message: " + message, Toast.LENGTH_SHORT).show();
-        mqttHandler.publish(topic, message);
+    private void publishMessage() {
+        Toast.makeText(this, "Publishing message: " + CAMBIO_MODO, Toast.LENGTH_SHORT).show();
+        mqttHandler.publish(TOPIC_MODO, CAMBIO_MODO);
     }
 
-    private void subscribeToTopic(String topic) {
-        Toast.makeText(this, "Subscribing to topic " + topic, Toast.LENGTH_SHORT).show();
-        mqttHandler.subscribe(topic);
+    private void subscribeToTopic() {
+        Toast.makeText(this, "Subscribing to topic " + TOPIC_MOVIMIENTO, Toast.LENGTH_SHORT).show();
+        mqttHandler.subscribe(TOPIC_MOVIMIENTO);
     }
 
 
     public class ConnectionLost extends BroadcastReceiver {
-
         public void onReceive(Context context, Intent intent) {
-
             Toast.makeText(getApplicationContext(), "Conexion Perdida", Toast.LENGTH_SHORT).show();
-
             connect();
-
         }
-
     }
 
-
-
     public class ReceptorOperacion extends BroadcastReceiver {
-
         public void onReceive(Context context, Intent intent) {
             TextView txtLcd = findViewById(R.id.txtDisplay);
             String msgMov = intent.getStringExtra("msgMov");
@@ -156,9 +145,7 @@ public class MainActivity extends AppCompatActivity {
             }
             txtLcd.setText(msgMov);
         }
-
     }
-
 }
 
 

@@ -12,7 +12,9 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.json.JSONObject;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class MqttHandler implements MqttCallback {
     public static final String BROKER_URL = "tcp://broker.emqx.io:1883";
@@ -25,24 +27,18 @@ public class MqttHandler implements MqttCallback {
     public static final String ACTION_DATA_RECEIVE ="com.example.intentservice.intent.action.DATA_RECEIVE";
     public static final String ACTION_CONNECTION_LOST ="com.example.intentservice.intent.action.CONNECTION_LOST";
     private MqttClient client;
-    private Context mContext;
-
+    private final Context mContext;
 
     public MqttHandler(Context mContext){
-
         this.mContext = mContext;
-
     }
 
     public void connect( String brokerUrl, String clientId,String username, String password) {
         try {
-
-
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);
             options.setUserName(username);
             options.setPassword(password.toCharArray());
-
 
             ///////////////////////////////////
             // Set up the persistence layer
@@ -52,7 +48,6 @@ public class MqttHandler implements MqttCallback {
             client.connect(options);
 
             client.setCallback(this);
-            //client.subscribe("#");
         } catch (MqttException e) {
             Log.d("Aplicacion",e.getMessage()+ "  "+e.getCause());
         }
@@ -86,7 +81,7 @@ public class MqttHandler implements MqttCallback {
 
     @Override
     public void connectionLost(Throwable cause) {
-        Log.d("MAIN ACTIVITY","conexion perdida"+ cause.getMessage().toString());
+        Log.d("MAIN ACTIVITY","conexion perdida" + cause.getMessage());
 
         Intent i = new Intent(ACTION_CONNECTION_LOST);
         mContext.sendBroadcast(i);
@@ -94,9 +89,11 @@ public class MqttHandler implements MqttCallback {
 
     @Override
     public void messageArrived(String topic, MqttMessage message) throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        String horario = now.format(formatter);
 
-        String msgMov=message.toString();
-
+        String msgMov=message.toString().concat(horario);
 
         //Se envian los valores sensados por el potenciometro, al bradcast reciever de la activity principal
         Intent i = new Intent(ACTION_DATA_RECEIVE);
