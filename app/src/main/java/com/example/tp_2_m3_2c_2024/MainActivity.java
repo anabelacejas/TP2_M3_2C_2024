@@ -1,21 +1,19 @@
 package com.example.tp_2_m3_2c_2024;
 
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+
 import android.view.View;
 
 import android.widget.Button;
-import android.widget.CompoundButton;
+
 import android.widget.ImageButton;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,8 +26,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -63,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         btnMode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                publishMessage(MqttHandler.TOPIC_MOVIMIENTO, "CAMBIAR MODO");
+                publishMessage(MqttHandler.TOPIC_MODO, "CAMBIAR MODO");
             }
         });
 
@@ -147,22 +143,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+
     public class ReceptorOperacion extends BroadcastReceiver {
 
         public void onReceive(Context context, Intent intent) {
             TextView txtLcd = findViewById(R.id.txtDisplay);
-            String msgJson = intent.getStringExtra("msgJson");
-            txtJson.setText(msgJson);
-
-            try {
-                JSONObject jsonObject = new JSONObject(msgJson);
-                String value = jsonObject.getString("value");
-                txtLcd.setText(value+"°");
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
+            String msgMov = intent.getStringExtra("msgMov");
+            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator != null) {
+                vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
             }
+            txtLcd.setText(msgMov);
         }
-
 
     }
 

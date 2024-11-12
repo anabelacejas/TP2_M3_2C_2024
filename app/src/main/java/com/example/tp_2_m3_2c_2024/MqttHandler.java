@@ -21,7 +21,7 @@ public class MqttHandler implements MqttCallback {
     public static final String PASS="";
 
     public static final String TOPIC_MOVIMIENTO = "/notif/sensor";
-    //public static final String TOPIC_TEMPERATURA      = "/casa/temperatura"
+    public static final String TOPIC_MODO = "/notif/modo";
     public static final String ACTION_DATA_RECEIVE ="com.example.intentservice.intent.action.DATA_RECEIVE";
     public static final String ACTION_CONNECTION_LOST ="com.example.intentservice.intent.action.CONNECTION_LOST";
     private MqttClient client;
@@ -95,14 +95,12 @@ public class MqttHandler implements MqttCallback {
     @Override
     public void messageArrived(String topic, MqttMessage message) throws Exception {
 
-        String msgJson=message.toString();
+        String msgMov=message.toString();
 
-        JSONObject json = new JSONObject(message.toString());
-        Float valorPote = Float.parseFloat(json.getString("value"));
 
         //Se envian los valores sensados por el potenciometro, al bradcast reciever de la activity principal
         Intent i = new Intent(ACTION_DATA_RECEIVE);
-        i.putExtra("msgJson", msgJson);
+        i.putExtra("msgMov", msgMov);
 
         mContext.sendBroadcast(i);
     }
