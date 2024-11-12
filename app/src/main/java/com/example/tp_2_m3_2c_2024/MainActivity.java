@@ -14,6 +14,7 @@ import android.view.View;
 
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtJson;
     private TextView txtModo;
     private Button cmdModo;
-
     public IntentFilter filterReceive;
     public IntentFilter filterConncetionLost;
     private ReceptorOperacion receiver = new ReceptorOperacion();
@@ -48,9 +48,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_func);
         Toolbar toolbar = findViewById(R.id.mytoolbar);
-        Switch switchModo = findViewById(R.id.swt_modo);
+        ImageButton btnSetting = findViewById(R.id.btnSetting);
+        btnSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mqttHandler.disconnect();
+                startActivity(new Intent(MainActivity.this, FuncActivity.class));
+            }
+        });
+
+        Button btnMode = findViewById(R.id.btnModo);
+        btnMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                publishMessage(MqttHandler.TOPIC_MOVIMIENTO, "CAMBIAR MODO");
+            }
+        });
 
         mqttHandler = new MqttHandler(getApplicationContext());
 
@@ -58,52 +73,13 @@ public class MainActivity extends AppCompatActivity {
 
         configurarBroadcastReciever();
 
-        switchModo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // on below line we are checking
-                // if switch is checked or not.
-                if (isChecked) {
-                    publishMessage(MqttHandler.TOPIC_MOVIMIENTO, "Escuchando full");
-                } else {
-                    publishMessage(MqttHandler.TOPIC_MOVIMIENTO, "Sonido desactivado");
-                }
-            }
-        });
-
         setSupportActionBar(toolbar);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.func), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
-
         });
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @SuppressLint("NonConstantResourceId")
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.activity1:
-                startActivity(new Intent(this, MainActivity.class));
-                break;
-            case R.id.activity2:
-                startActivity(new Intent(this, FuncActivity.class));
-                break;
-            default:
-
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
 
     private void connect() {
         mqttHandler.connect(mqttHandler.BROKER_URL, mqttHandler.CLIENT_ID, mqttHandler.USER, mqttHandler.PASS);
@@ -174,14 +150,14 @@ public class MainActivity extends AppCompatActivity {
     public class ReceptorOperacion extends BroadcastReceiver {
 
         public void onReceive(Context context, Intent intent) {
-
+            TextView txtLcd = findViewById(R.id.txtDisplay);
             String msgJson = intent.getStringExtra("msgJson");
             txtJson.setText(msgJson);
 
             try {
                 JSONObject jsonObject = new JSONObject(msgJson);
                 String value = jsonObject.getString("value");
-                txtModo.setText(value+"°");
+                txtLcd.setText(value+"°");
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
