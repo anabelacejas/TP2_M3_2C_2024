@@ -20,7 +20,7 @@ public class MqttHandler implements MqttCallback {
     public static final String USER="";
     public static final String PASS="";
 
-    public static final String TOPIC_LUZ = "/notif/movimiento";
+    public static final String TOPIC_MOVIMIENTO = "/notif/sensor";
     //public static final String TOPIC_TEMPERATURA      = "/casa/temperatura"
     public static final String ACTION_DATA_RECEIVE ="com.example.intentservice.intent.action.DATA_RECEIVE";
     public static final String ACTION_CONNECTION_LOST ="com.example.intentservice.intent.action.CONNECTION_LOST";
